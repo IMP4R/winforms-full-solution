@@ -1,0 +1,1249 @@
+{
+  "projectName": "PhoneBook",
+  "namespace": "PhoneBook",
+  "startupForm": "MainForm",
+  "classes": [
+    {
+      "name": "Note",
+      "fields": [
+        {
+          "type": "string",
+          "name": "LastName"
+        },
+        {
+          "type": "string",
+          "name": "Name"
+        },
+        {
+          "type": "string",
+          "name": "Patronymic"
+        },
+        {
+          "type": "string",
+          "name": "Street"
+        },
+        {
+          "type": "ushort",
+          "name": "House"
+        },
+        {
+          "type": "ushort",
+          "name": "Flat"
+        },
+        {
+          "type": "string",
+          "name": "Phone"
+        }
+      ]
+    },
+    {
+      "name": "CompareByLastName",
+      "implements": "IComparer<Note>",
+      "fields": [],
+      "methods": [
+        {
+          "returnType": "int",
+          "name": "Compare",
+          "params": "Note x, Note y",
+          "body": "return string.Compare(x.LastName, y.LastName);"
+        }
+      ]
+    },
+    {
+      "name": "CompareByFlat",
+      "implements": "IComparer<Note>",
+      "fields": [],
+      "methods": [
+        {
+          "returnType": "int",
+          "name": "Compare",
+          "params": "Note x, Note y",
+          "body": "return x.Flat.CompareTo(y.Flat);"
+        }
+      ]
+    }
+  ],
+  "forms": [
+    {
+      "id": "f_mainform_01",
+      "name": "MainForm",
+      "type": "Form",
+      "isMain": true,
+      "props": {
+        "Name": "MainForm",
+        "Text": "Телефонный справочник",
+        "FormBorderStyle": "FixedSingle",
+        "StartPosition": "CenterScreen",
+        "Size.Width": 520,
+        "Size.Height": 360,
+        "Location.X": 0,
+        "Location.Y": 0,
+        "TabIndex": 0,
+        "Enabled": true,
+        "Visible": true,
+        "Font.Size": 9,
+        "Font.Bold": false,
+        "Font.Family": "Segoe UI"
+      },
+      "fields": [
+        {
+          "type": "List<Note>",
+          "name": "PhoneNote",
+          "init": "NewList()"
+        },
+        {
+          "type": "int",
+          "name": "current",
+          "init": "-1"
+        }
+      ],
+      "events": {},
+      "helperMethods": [
+        {
+          "name": "PrintElement",
+          "returnType": "void",
+          "params": "",
+          "body": "if ((state.current >= 0) && (state.current < state.PhoneNote.Count))\n{\n    var MyRecord = state.PhoneNote[state.current];\n    LastNameTextBox.Text = MyRecord.LastName;\n    NameTextBox.Text = MyRecord.Name;\n    PatronymicTextBox.Text = MyRecord.Patronymic;\n    PhoneMaskedTextBox.Text = MyRecord.Phone;\n    StreetTextBox.Text = MyRecord.Street;\n    HouseNumericUpDown.Value = MyRecord.House;\n    FlatNumericUpDown.Value = MyRecord.Flat;\n}\nelse\n{\n    LastNameTextBox.Text = \"\";\n    NameTextBox.Text = \"\";\n    PatronymicTextBox.Text = \"\";\n    PhoneMaskedTextBox.Text = \"\";\n    StreetTextBox.Text = \"\";\n    HouseNumericUpDown.Value = 1;\n    FlatNumericUpDown.Value = 1;\n}\nNumberToolStripStatusLabel.Text = String(state.current + 1);\nQuantityToolStripStatusLabel.Text = String(state.PhoneNote.Count);"
+        }
+      ],
+      "publicFields": [],
+      "constructorParam": null,
+      "children": [
+        {
+          "id": "c_lbl_ln",
+          "name": "lblLastName",
+          "type": "Label",
+          "props": {
+            "Name": "lblLastName",
+            "Text": "Фамилия:",
+            "Location.X": 20,
+            "Location.Y": 50,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_lbl_n",
+          "name": "lblName",
+          "type": "Label",
+          "props": {
+            "Name": "lblName",
+            "Text": "Имя:",
+            "Location.X": 20,
+            "Location.Y": 85,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_lbl_pat",
+          "name": "lblPatronymic",
+          "type": "Label",
+          "props": {
+            "Name": "lblPatronymic",
+            "Text": "Отчество:",
+            "Location.X": 20,
+            "Location.Y": 120,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_lbl_phone",
+          "name": "lblPhone",
+          "type": "Label",
+          "props": {
+            "Name": "lblPhone",
+            "Text": "Телефон:",
+            "Location.X": 20,
+            "Location.Y": 155,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_lbl_str",
+          "name": "lblStreet",
+          "type": "Label",
+          "props": {
+            "Name": "lblStreet",
+            "Text": "Улица:",
+            "Location.X": 20,
+            "Location.Y": 190,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_lbl_house",
+          "name": "lblHouse",
+          "type": "Label",
+          "props": {
+            "Name": "lblHouse",
+            "Text": "Дом:",
+            "Location.X": 20,
+            "Location.Y": 225,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_lbl_flat",
+          "name": "lblFlat",
+          "type": "Label",
+          "props": {
+            "Name": "lblFlat",
+            "Text": "Квартира:",
+            "Location.X": 260,
+            "Location.Y": 225,
+            "Size.Width": 80,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_tb_ln",
+          "name": "LastNameTextBox",
+          "type": "TextBox",
+          "props": {
+            "Name": "LastNameTextBox",
+            "Text": "",
+            "Location.X": 140,
+            "Location.Y": 48,
+            "Size.Width": 200,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": false,
+            "Visible": true,
+            "TabIndex": 2,
+            "MaxLength": 25
+          },
+          "events": {}
+        },
+        {
+          "id": "c_tb_n",
+          "name": "NameTextBox",
+          "type": "TextBox",
+          "props": {
+            "Name": "NameTextBox",
+            "Text": "",
+            "Location.X": 140,
+            "Location.Y": 83,
+            "Size.Width": 200,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": false,
+            "Visible": true,
+            "TabIndex": 3,
+            "MaxLength": 25
+          },
+          "events": {}
+        },
+        {
+          "id": "c_tb_pat",
+          "name": "PatronymicTextBox",
+          "type": "TextBox",
+          "props": {
+            "Name": "PatronymicTextBox",
+            "Text": "",
+            "Location.X": 140,
+            "Location.Y": 118,
+            "Size.Width": 200,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": false,
+            "Visible": true,
+            "TabIndex": 4,
+            "MaxLength": 25
+          },
+          "events": {}
+        },
+        {
+          "id": "c_mtb_phone",
+          "name": "PhoneMaskedTextBox",
+          "type": "MaskedTextBox",
+          "props": {
+            "Name": "PhoneMaskedTextBox",
+            "Text": "",
+            "Location.X": 140,
+            "Location.Y": 153,
+            "Size.Width": 140,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": false,
+            "Visible": true,
+            "TabIndex": 5,
+            "Mask": "(999) 000-000"
+          },
+          "events": {}
+        },
+        {
+          "id": "c_tb_str",
+          "name": "StreetTextBox",
+          "type": "TextBox",
+          "props": {
+            "Name": "StreetTextBox",
+            "Text": "",
+            "Location.X": 140,
+            "Location.Y": 188,
+            "Size.Width": 340,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": false,
+            "Visible": true,
+            "TabIndex": 6,
+            "MaxLength": 40
+          },
+          "events": {}
+        },
+        {
+          "id": "c_nud_house",
+          "name": "HouseNumericUpDown",
+          "type": "NumericUpDown",
+          "props": {
+            "Name": "HouseNumericUpDown",
+            "Text": "",
+            "Location.X": 140,
+            "Location.Y": 223,
+            "Size.Width": 80,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": false,
+            "Visible": true,
+            "TabIndex": 7,
+            "Minimum": 1,
+            "Maximum": 500,
+            "Value": 1
+          },
+          "events": {}
+        },
+        {
+          "id": "c_nud_flat",
+          "name": "FlatNumericUpDown",
+          "type": "NumericUpDown",
+          "props": {
+            "Name": "FlatNumericUpDown",
+            "Text": "",
+            "Location.X": 350,
+            "Location.Y": 223,
+            "Size.Width": 80,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": false,
+            "Visible": true,
+            "TabIndex": 8,
+            "Minimum": 1,
+            "Maximum": 500,
+            "Value": 1
+          },
+          "events": {}
+        },
+        {
+          "id": "c_btn_prev",
+          "name": "PreviousButton",
+          "type": "Button",
+          "props": {
+            "Name": "PreviousButton",
+            "Text": "<",
+            "Location.X": 360,
+            "Location.Y": 50,
+            "Size.Width": 50,
+            "Size.Height": 50,
+            "Font.Size": 16,
+            "Font.Bold": true,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {
+            "Click": "h_prevClick"
+          }
+        },
+        {
+          "id": "c_btn_next",
+          "name": "NextButton",
+          "type": "Button",
+          "props": {
+            "Name": "NextButton",
+            "Text": ">",
+            "Location.X": 430,
+            "Location.Y": 50,
+            "Size.Width": 50,
+            "Size.Height": 50,
+            "Font.Size": 16,
+            "Font.Bold": true,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 1
+          },
+          "events": {
+            "Click": "h_nextClick"
+          }
+        },
+        {
+          "id": "c_menu_main",
+          "name": "menuStrip1",
+          "type": "MenuStrip",
+          "props": {
+            "Name": "menuStrip1",
+            "Text": "",
+            "Location.X": 0,
+            "Location.Y": 0,
+            "Size.Width": 0,
+            "Size.Height": 24,
+            "Font.Size": 9,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "items": [
+            {
+              "Name": "абонентToolStripMenuItem",
+              "Text": "Абонент",
+              "items": [
+                {
+                  "Name": "добавитьToolStripMenuItem",
+                  "Text": "Добавить",
+                  "events": {
+                    "Click": "h_addClick"
+                  }
+                },
+                {
+                  "Name": "изменитьToolStripMenuItem",
+                  "Text": "Изменить",
+                  "events": {
+                    "Click": "h_editClick"
+                  }
+                },
+                {
+                  "Name": "удалитьToolStripMenuItem",
+                  "Text": "Удалить",
+                  "events": {
+                    "Click": "h_deleteClick"
+                  }
+                }
+              ]
+            },
+            {
+              "Name": "файлToolStripMenuItem",
+              "Text": "Файл",
+              "items": [
+                {
+                  "Name": "открытьToolStripMenuItem",
+                  "Text": "Открыть",
+                  "events": {
+                    "Click": "h_openClick"
+                  }
+                },
+                {
+                  "Name": "сохранитьToolStripMenuItem",
+                  "Text": "Сохранить",
+                  "events": {
+                    "Click": "h_saveClick"
+                  }
+                }
+              ]
+            },
+            {
+              "Name": "правкаToolStripMenuItem",
+              "Text": "Правка",
+              "items": [
+                {
+                  "Name": "поискToolStripMenuItem",
+                  "Text": "Поиск",
+                  "events": {
+                    "Click": "h_searchClick"
+                  }
+                },
+                {
+                  "Name": "сортироватьПоФамилииToolStripMenuItem",
+                  "Text": "Сортировать по фамилии",
+                  "events": {
+                    "Click": "h_sortLastNameClick"
+                  }
+                },
+                {
+                  "Name": "сортироватьПоКвартиреToolStripMenuItem",
+                  "Text": "Сортировать по квартире",
+                  "events": {
+                    "Click": "h_sortFlatClick"
+                  }
+                }
+              ]
+            }
+          ],
+          "events": {}
+        },
+        {
+          "id": "c_status_1",
+          "name": "statusStrip1",
+          "type": "StatusStrip",
+          "props": {
+            "Name": "statusStrip1",
+            "Text": "",
+            "Location.X": 0,
+            "Location.Y": 338,
+            "Size.Width": 0,
+            "Size.Height": 22,
+            "Font.Size": 9,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "items": [
+            {
+              "Name": "Quantity_ToolStripStatusLabel",
+              "Text": "Количество записей",
+              "BorderSides": "All",
+              "BorderStyle": "SunkenOuter"
+            },
+            {
+              "Name": "QuantityToolStripStatusLabel",
+              "Text": "0",
+              "AutoSize": false,
+              "Size.Width": 40,
+              "Size.Height": 17,
+              "BorderSides": "All",
+              "BorderStyle": "SunkenOuter"
+            },
+            {
+              "Name": "Number_ToolStripStatusLabel",
+              "Text": "Номер записи",
+              "BorderSides": "All",
+              "BorderStyle": "SunkenOuter"
+            },
+            {
+              "Name": "NumberToolStripStatusLabel",
+              "Text": "0",
+              "AutoSize": false,
+              "Size.Width": 40,
+              "Size.Height": 17,
+              "BorderSides": "All",
+              "BorderStyle": "SunkenOuter"
+            }
+          ],
+          "events": {}
+        },
+        {
+          "id": "c_ofd",
+          "name": "openFileDialog1",
+          "type": "OpenFileDialog",
+          "props": {
+            "Name": "openFileDialog1",
+            "Text": "",
+            "Location.X": 0,
+            "Location.Y": 0,
+            "Size.Width": 0,
+            "Size.Height": 0,
+            "Font.Size": 9,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_sfd",
+          "name": "saveFileDialog1",
+          "type": "SaveFileDialog",
+          "props": {
+            "Name": "saveFileDialog1",
+            "Text": "",
+            "Location.X": 0,
+            "Location.Y": 0,
+            "Size.Width": 0,
+            "Size.Height": 0,
+            "Font.Size": 9,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        }
+      ]
+    },
+    {
+      "id": "f_addform_01",
+      "name": "AddForm",
+      "type": "Form",
+      "isMain": false,
+      "props": {
+        "Name": "AddForm",
+        "Text": "Добавление абонента",
+        "FormBorderStyle": "FixedSingle",
+        "StartPosition": "CenterParent",
+        "Size.Width": 460,
+        "Size.Height": 300,
+        "Location.X": 0,
+        "Location.Y": 0,
+        "TabIndex": 0,
+        "Enabled": true,
+        "Visible": true,
+        "Font.Size": 9,
+        "Font.Bold": false,
+        "Font.Family": "Segoe UI"
+      },
+      "fields": [],
+      "events": {},
+      "helperMethods": [],
+      "publicFields": [
+        {
+          "type": "Note",
+          "name": "MyRecord"
+        }
+      ],
+      "constructorParam": {
+        "type": "Note",
+        "name": "MyRecord"
+      },
+      "children": [
+        {
+          "id": "c_add_lbl_ln",
+          "name": "lblLastName",
+          "type": "Label",
+          "props": {
+            "Name": "lblLastName",
+            "Text": "Фамилия:",
+            "Location.X": 20,
+            "Location.Y": 20,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_add_lbl_n",
+          "name": "lblName",
+          "type": "Label",
+          "props": {
+            "Name": "lblName",
+            "Text": "Имя:",
+            "Location.X": 20,
+            "Location.Y": 55,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_add_lbl_pat",
+          "name": "lblPatronymic",
+          "type": "Label",
+          "props": {
+            "Name": "lblPatronymic",
+            "Text": "Отчество:",
+            "Location.X": 20,
+            "Location.Y": 90,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_add_lbl_phone",
+          "name": "lblPhone",
+          "type": "Label",
+          "props": {
+            "Name": "lblPhone",
+            "Text": "Телефон:",
+            "Location.X": 20,
+            "Location.Y": 125,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_add_lbl_str",
+          "name": "lblStreet",
+          "type": "Label",
+          "props": {
+            "Name": "lblStreet",
+            "Text": "Улица:",
+            "Location.X": 20,
+            "Location.Y": 160,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_add_lbl_house",
+          "name": "lblHouse",
+          "type": "Label",
+          "props": {
+            "Name": "lblHouse",
+            "Text": "Дом:",
+            "Location.X": 20,
+            "Location.Y": 195,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_add_lbl_flat",
+          "name": "lblFlat",
+          "type": "Label",
+          "props": {
+            "Name": "lblFlat",
+            "Text": "Квартира:",
+            "Location.X": 220,
+            "Location.Y": 195,
+            "Size.Width": 80,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_add_tb_ln",
+          "name": "LastNameTextBox",
+          "type": "TextBox",
+          "props": {
+            "Name": "LastNameTextBox",
+            "Text": "",
+            "Location.X": 140,
+            "Location.Y": 18,
+            "Size.Width": 200,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0,
+            "MaxLength": 25
+          },
+          "events": {}
+        },
+        {
+          "id": "c_add_tb_n",
+          "name": "NameTextBox",
+          "type": "TextBox",
+          "props": {
+            "Name": "NameTextBox",
+            "Text": "",
+            "Location.X": 140,
+            "Location.Y": 53,
+            "Size.Width": 200,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 1,
+            "MaxLength": 25
+          },
+          "events": {}
+        },
+        {
+          "id": "c_add_tb_pat",
+          "name": "PatronymicTextBox",
+          "type": "TextBox",
+          "props": {
+            "Name": "PatronymicTextBox",
+            "Text": "",
+            "Location.X": 140,
+            "Location.Y": 88,
+            "Size.Width": 200,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 2,
+            "MaxLength": 25
+          },
+          "events": {}
+        },
+        {
+          "id": "c_add_mtb_phone",
+          "name": "PhoneMaskedTextBox",
+          "type": "MaskedTextBox",
+          "props": {
+            "Name": "PhoneMaskedTextBox",
+            "Text": "",
+            "Location.X": 140,
+            "Location.Y": 123,
+            "Size.Width": 140,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 3,
+            "Mask": "(999) 000-000"
+          },
+          "events": {}
+        },
+        {
+          "id": "c_add_tb_str",
+          "name": "StreetTextBox",
+          "type": "TextBox",
+          "props": {
+            "Name": "StreetTextBox",
+            "Text": "",
+            "Location.X": 140,
+            "Location.Y": 158,
+            "Size.Width": 280,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 4,
+            "MaxLength": 40
+          },
+          "events": {}
+        },
+        {
+          "id": "c_add_nud_house",
+          "name": "HouseNumericUpDown",
+          "type": "NumericUpDown",
+          "props": {
+            "Name": "HouseNumericUpDown",
+            "Text": "",
+            "Location.X": 140,
+            "Location.Y": 193,
+            "Size.Width": 80,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 5,
+            "Minimum": 1,
+            "Maximum": 500,
+            "Value": 1
+          },
+          "events": {}
+        },
+        {
+          "id": "c_add_nud_flat",
+          "name": "FlatNumericUpDown",
+          "type": "NumericUpDown",
+          "props": {
+            "Name": "FlatNumericUpDown",
+            "Text": "",
+            "Location.X": 310,
+            "Location.Y": 193,
+            "Size.Width": 80,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 6,
+            "Minimum": 1,
+            "Maximum": 500,
+            "Value": 1
+          },
+          "events": {}
+        },
+        {
+          "id": "c_add_btn",
+          "name": "AddButton",
+          "type": "Button",
+          "props": {
+            "Name": "AddButton",
+            "Text": "Добавить",
+            "Location.X": 280,
+            "Location.Y": 240,
+            "Size.Width": 140,
+            "Size.Height": 32,
+            "Font.Size": 11,
+            "Font.Bold": true,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 7
+          },
+          "events": {
+            "Click": "h_addBtnClick"
+          }
+        }
+      ]
+    },
+    {
+      "id": "f_search_01",
+      "name": "SearchNameForm",
+      "type": "Form",
+      "isMain": false,
+      "props": {
+        "Name": "SearchNameForm",
+        "Text": "Поиск абонента",
+        "FormBorderStyle": "FixedSingle",
+        "StartPosition": "CenterParent",
+        "Size.Width": 500,
+        "Size.Height": 300,
+        "Location.X": 0,
+        "Location.Y": 0,
+        "TabIndex": 0,
+        "Enabled": true,
+        "Visible": true,
+        "Font.Size": 9,
+        "Font.Bold": false,
+        "Font.Family": "Segoe UI"
+      },
+      "fields": [
+        {
+          "type": "List<Note>",
+          "name": "PhoneNote"
+        }
+      ],
+      "events": {},
+      "helperMethods": [],
+      "publicFields": [],
+      "constructorParam": {
+        "type": "List<Note>",
+        "name": "PhoneNote"
+      },
+      "children": [
+        {
+          "id": "c_s_lbl_ln",
+          "name": "lblLastName",
+          "type": "Label",
+          "props": {
+            "Name": "lblLastName",
+            "Text": "Фамилия:",
+            "Location.X": 20,
+            "Location.Y": 20,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_s_lbl_n",
+          "name": "lblName",
+          "type": "Label",
+          "props": {
+            "Name": "lblName",
+            "Text": "Имя:",
+            "Location.X": 20,
+            "Location.Y": 55,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_s_lbl_pat",
+          "name": "lblPatronymic",
+          "type": "Label",
+          "props": {
+            "Name": "lblPatronymic",
+            "Text": "Отчество:",
+            "Location.X": 20,
+            "Location.Y": 90,
+            "Size.Width": 100,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_s_tb_ln",
+          "name": "LastNameTextBox",
+          "type": "TextBox",
+          "props": {
+            "Name": "LastNameTextBox",
+            "Text": "",
+            "Location.X": 130,
+            "Location.Y": 18,
+            "Size.Width": 200,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 0
+          },
+          "events": {}
+        },
+        {
+          "id": "c_s_tb_n",
+          "name": "NameTextBox",
+          "type": "TextBox",
+          "props": {
+            "Name": "NameTextBox",
+            "Text": "",
+            "Location.X": 130,
+            "Location.Y": 53,
+            "Size.Width": 200,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 1
+          },
+          "events": {}
+        },
+        {
+          "id": "c_s_tb_pat",
+          "name": "PatronymicTextBox",
+          "type": "TextBox",
+          "props": {
+            "Name": "PatronymicTextBox",
+            "Text": "",
+            "Location.X": 130,
+            "Location.Y": 88,
+            "Size.Width": 200,
+            "Size.Height": 23,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 2
+          },
+          "events": {}
+        },
+        {
+          "id": "c_s_btn",
+          "name": "SearchButton",
+          "type": "Button",
+          "props": {
+            "Name": "SearchButton",
+            "Text": "Поиск",
+            "Location.X": 350,
+            "Location.Y": 18,
+            "Size.Width": 120,
+            "Size.Height": 93,
+            "Font.Size": 12,
+            "Font.Bold": true,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 3
+          },
+          "events": {
+            "Click": "h_searchBtnClick"
+          }
+        },
+        {
+          "id": "c_s_tb_res",
+          "name": "ResultsTextBox",
+          "type": "TextBox",
+          "props": {
+            "Name": "ResultsTextBox",
+            "Text": "",
+            "Location.X": 20,
+            "Location.Y": 130,
+            "Size.Width": 450,
+            "Size.Height": 150,
+            "Font.Size": 12,
+            "Font.Bold": false,
+            "Font.Family": "Segoe UI",
+            "Enabled": true,
+            "Visible": true,
+            "TabIndex": 4
+          },
+          "events": {}
+        }
+      ]
+    }
+  ],
+  "handlers": {
+    "h_addClick": {
+      "label": "добавитьToolStripMenuItem_Click",
+      "eventType": "Click",
+      "body": "var MyRecord = NewNote();\nvar r = await ShowDialog(\"AddForm\", MyRecord);\nif (r === DialogResult.OK) {\n    state.current = state.PhoneNote.Count;\n    state.PhoneNote.Add(MyRecord);\n    await PrintElement();\n}"
+    },
+    "h_editClick": {
+      "label": "изменитьToolStripMenuItem_Click",
+      "eventType": "Click",
+      "body": "if ((state.current < 0) || (state.current >= state.PhoneNote.Count)) {\n    await MessageBox.Show(\"Нет записей для изменения!\", \"Ошибка\");\n    return;\n}\nvar MyRecord = state.PhoneNote[state.current];\nvar r = await ShowDialog(\"AddForm\", MyRecord);\nif (r === DialogResult.OK) {\n    state.PhoneNote[state.current] = MyRecord;\n    await PrintElement();\n}"
+    },
+    "h_deleteClick": {
+      "label": "удалитьToolStripMenuItem_Click",
+      "eventType": "Click",
+      "body": "if ((state.current < 0) || (state.current >= state.PhoneNote.Count)) {\n    await MessageBox.Show(\"Нет записей для удаления!\", \"Ошибка\");\n    return;\n}\nstate.PhoneNote.RemoveAt(state.current);\nif (state.current >= state.PhoneNote.Count)\n    state.current = state.PhoneNote.Count - 1;\nawait PrintElement();"
+    },
+    "h_prevClick": {
+      "label": "PreviousButton_Click",
+      "eventType": "Click",
+      "body": "if (state.current <= 0) {\n  await MessageBox.Show(\"Предыдущей записи не существует!\", \"Ошибка\");\n  return;\n}\nstate.current--;\nawait PrintElement();"
+    },
+    "h_nextClick": {
+      "label": "NextButton_Click",
+      "eventType": "Click",
+      "body": "if (state.current >= state.PhoneNote.Count - 1) {\n  await MessageBox.Show(\"Следующей записи не существует!\", \"Ошибка\");\n  return;\n}\nstate.current++;\nawait PrintElement();"
+    },
+    "h_saveClick": {
+      "label": "сохранитьToolStripMenuItem_Click",
+      "eventType": "Click",
+      "body": "var r = await saveFileDialog1.ShowDialog();\nif (r === 'OK') {\n  var sw = new StreamWriter(saveFileDialog1.FileName);\n  for (var i = 0; i < state.PhoneNote.Count; i++) {\n    var rec = state.PhoneNote[i];\n    sw.WriteLine(rec.LastName);\n    sw.WriteLine(rec.Name);\n    sw.WriteLine(rec.Patronymic);\n    sw.WriteLine(rec.Street);\n    sw.WriteLine(rec.House);\n    sw.WriteLine(rec.Flat);\n    sw.WriteLine(rec.Phone);\n  }\n  sw.Dispose();\n}"
+    },
+    "h_openClick": {
+      "label": "открытьToolStripMenuItem_Click",
+      "eventType": "Click",
+      "body": "var r = await openFileDialog1.ShowDialog();\nif (r === 'OK') {\n  state.PhoneNote.Clear();\n  var sr = new StreamReader(openFileDialog1.FileName);\n  while (!sr.EndOfStream) {\n    var rec = NewNote();\n    rec.LastName = sr.ReadLine();\n    rec.Name = sr.ReadLine();\n    rec.Patronymic = sr.ReadLine();\n    rec.Street = sr.ReadLine();\n    rec.House = parseInt(sr.ReadLine());\n    rec.Flat = parseInt(sr.ReadLine());\n    rec.Phone = sr.ReadLine();\n    state.PhoneNote.Add(rec);\n  }\n  sr.Dispose();\n  if (state.PhoneNote.Count == 0)\n    state.current = -1;\n  else\n    state.current = 0;\n  await PrintElement();\n}"
+    },
+    "h_searchClick": {
+      "label": "поискToolStripMenuItem_Click",
+      "eventType": "Click",
+      "body": "await ShowDialog(\"SearchNameForm\", state.PhoneNote);"
+    },
+    "h_sortLastNameClick": {
+      "label": "сортироватьПоФамилииToolStripMenuItem_Click",
+      "eventType": "Click",
+      "body": "state.PhoneNote.Sort((x, y) => x.LastName.localeCompare(y.LastName));\nif (state.PhoneNote.Count > 0)\n    state.current = 0;\nawait PrintElement();"
+    },
+    "h_sortFlatClick": {
+      "label": "сортироватьПоКвартиреToolStripMenuItem_Click",
+      "eventType": "Click",
+      "body": "state.PhoneNote.Sort((x, y) => x.Flat - y.Flat);\nif (state.PhoneNote.Count > 0)\n    state.current = 0;\nawait PrintElement();"
+    },
+    "h_addBtnClick": {
+      "label": "AddButton_Click",
+      "eventType": "Click",
+      "body": "state.MyRecord.LastName = LastNameTextBox.Text;\nstate.MyRecord.Name = NameTextBox.Text;\nstate.MyRecord.Patronymic = PatronymicTextBox.Text;\nstate.MyRecord.Phone = PhoneMaskedTextBox.Text;\nstate.MyRecord.Street = StreetTextBox.Text;\nstate.MyRecord.House = parseInt(HouseNumericUpDown.Value);\nstate.MyRecord.Flat = parseInt(FlatNumericUpDown.Value);\nClose();"
+    },
+    "h_searchBtnClick": {
+      "label": "SearchButton_Click",
+      "eventType": "Click",
+      "body": "ResultsTextBox.Text = \"\";\nvar i = 0;\nfor (var idx = 0; idx < state.PhoneNote.Count; idx++) {\n    var MyRecord = state.PhoneNote[idx];\n    if (MyRecord.LastName.includes(LastNameTextBox.Text) &&\n        MyRecord.Name.includes(NameTextBox.Text) &&\n        MyRecord.Patronymic.includes(PatronymicTextBox.Text)) {\n        i++;\n        ResultsTextBox.Text = ResultsTextBox.Text + i + \". \" + MyRecord.LastName + \" \" + MyRecord.Name + \" \" + MyRecord.Patronymic + \" — \" + MyRecord.Street + \", д.\" + MyRecord.House + \", кв.\" + MyRecord.Flat + \", тел.\" + MyRecord.Phone + \"\\r\\n\";\n    }\n}\nif (i == 0) {\n    ResultsTextBox.Text = \"Записей не найдено\";\n}"
+    }
+  }
+}

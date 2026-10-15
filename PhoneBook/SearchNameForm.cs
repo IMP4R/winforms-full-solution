@@ -1,0 +1,51 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
+using System.Xml.Serialization;
+using PhoneBook.Save;
+using PhoneBook.Open;
+
+namespace PhoneBook
+{
+    public partial class SearchNameForm : Form
+    {
+
+        private List<Note> PhoneNote;
+
+        public SearchNameForm(List<Note> _PhoneNote)
+        {
+            InitializeComponent();
+            PhoneNote = _PhoneNote;
+            PhoneNote = _PhoneNote;
+        }
+
+
+        private void SearchButton_Click(object sender, EventArgs e)
+        {
+            ResultsTextBox.Text = "";
+            var i = 0;
+            for (var idx = 0; idx < PhoneNote.Count; idx++)
+            {
+                var MyRecord = PhoneNote[idx];
+                if (MyRecord.LastName.Contains(LastNameTextBox.Text) &&
+                MyRecord.Name.Contains(NameTextBox.Text) &&
+                MyRecord.Patronymic.Contains(PatronymicTextBox.Text))
+                {
+                    i++;
+                    ResultsTextBox.Text = ResultsTextBox.Text + i + ". " + MyRecord.LastName + " " + MyRecord.Name + " " + MyRecord.Patronymic + " — " + MyRecord.Street + ", д." + MyRecord.House + ", кв." + MyRecord.Flat + ", тел." + MyRecord.Phone + "\r\n";
+                }
+            }
+            if (i == 0)
+            {
+                ResultsTextBox.Text = "Записей, удовлетворяющих поставленным условиям, в списке абонентов нет!";
+            }
+        }
+
+        private void CloseButton_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+    }
+}

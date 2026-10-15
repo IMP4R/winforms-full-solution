@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" href="data:,">
+<title>WinForms Web Simulator — Lab 1: PhoneBook</title>
+<style>
+/* =========================================================
+   WinForms Web Simulator
+   Look & feel: Windows 11 + Visual Studio 2022 dark designer
+   ========================================================= */
+
+:root {
+  /* Windows 11 Mica/Acrylic palette */
+  --win-bg: #f3f3f3;
+  --win-surface: #ffffff;
+  --win-surface-alt: #fafafa;
+  --win-border: #e5e5e5;
+  --win-border-strong: #d1d1d1;
+  --win-text: #1b1b1b;
+  --win-text-muted: #5c5c5c;
+  --win-accent: #0067c0;
+  --win-accent-hover: #0078d4;
+  --win-accent-pressed: #005a9e;
+  --win-control-bg: #fdfdfd;
+  --win-control-border: #d1d1d1;
+  --win-control-border-bottom: #8a8a8a;
+  --win-disabled-bg: #f0f0f0;
+  --win-disabled-text: #a0a0a0;
+
+  /* Visual Studio 2022 dark theme (the chrome around the form) */
+  --vs-bg: #1e1e1e;
+  --vs-bg-alt: #252526;
+  --vs-panel: #2d2d30;
+  --vs-panel-alt: #333337;
+  --vs-border: #3e3e42;
+  --vs-text: #cccccc;
+  --vs-text-muted: #858585;
+  --vs-accent: #0e639c;
+  --vs-accent-hover: #1177bb;
+  --vs-designer-bg: #2d2d30;
+  --vs-designer-canvas: #383838;
+  --vs-selection: #007acc;
+  --vs-grid-dot: rgba(255, 255, 255, 0.06);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: "Segoe UI", Tahoma, Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  color: var(--vs-text);
+  background: var(--vs-bg);
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select { font-family: inherit; font-size: inherit; }
+
+/* ============================================================
+   APP SHELL — Visual Studio-like chrome
+   ============================================================ */
+.app {
+  display: grid;
+  grid-template-rows: 36px 32px 1fr 22px;
+  height: 100vh;
+}
+
+/* Title bar */
+.titlebar {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  background: var(--vs-bg-alt);
+  border-bottom: 1px solid var(--vs-border);
+  -webkit-app-region: drag;
+}
+.titlebar .traffic {
+  display: flex;
+  gap: 8px;
+  margin-right: 16px;
+}
+.titlebar .traffic span {
+  width: 12px; height: 12px; border-radius: 50%;
+}
+.titlebar .traffic .red    { background: #ff5f56; }
+.titlebar .traffic .yellow { background: #ffbd2e; }
+.titlebar .traffic .green  { background: #27c93f; }
+.titlebar .title {
+  font-size: 12px;
+  color: var(--vs-text);
+  letter-spacing: 0.02em;
+}
+.titlebar .title b { color: #fff; font-weight: 600; }
+
+/* Menu/toolbar strip */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  background: var(--vs-bg);
+  border-bottom: 1px solid var(--vs-border);
+}
+.toolbar .menu-item {
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 12px;
+  border-radius: 3px;
+}
+.toolbar .menu-item:hover { background: var(--vs-panel-alt); }
+.toolbar .sep {
+  width: 1px;
+  height: 18px;
+  background: var(--vs-border);
+  margin: 0 4px;
+}
+.toolbar .mode-switch {
+  margin-left: auto;
+  display: flex;
+  background: var(--vs-panel);
+  border: 1px solid var(--vs-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.toolbar .mode-switch button {
+  background: transparent;
+  color: var(--vs-text);
+  border: none;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.toolbar .mode-switch button.active {
+  background: var(--vs-accent);
+  color: white;
+}
+.toolbar .run-btn {
+  background: #16825d;
+  color: white;
+  border: none;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.toolbar .run-btn:hover { background: #1a9c70; }
+.toolbar .run-btn::before {
+  content: "▶";
+  font-size: 10px;
+}
+.toolbar .export-btn {
+  background: var(--vs-accent);
+  color: white;
+  border: none;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 12px;
+  border-radius: 3px;
+}
+.toolbar .export-btn:hover { background: var(--vs-accent-hover); }
+
+/* Main grid: toolbox | designer | inspector */
+.main {
+  display: grid;
+  grid-template-columns: 240px 1fr 280px;
+  overflow: hidden;
+}
+
+/* ============================================================
+   TOOLBOX (left panel) — palette of controls
+   ============================================================ */
+.toolbox {
+  background: var(--vs-panel);
+  border-right: 1px solid var(--vs-border);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.panel-header {
+  padding: 6px 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--vs-text-muted);
+  background: var(--vs-bg-alt);
+  border-bottom: 1px solid var(--vs-border);
+}
+.toolbox-group {
+  border-bottom: 1px solid var(--vs-border);
+}
+.toolbox-group-header {
+  padding: 6px 12px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.toolbox-group-header::before {
+  content: "▼";
+  font-size: 8px;
+  color: var(--vs-text-muted);
+}
+.toolbox-item {
+  padding: 5px 12px 5px 28px;
+  font-size: 12px;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.toolbox-item:hover { background: var(--vs-panel-alt); }
+.toolbox-item:active { cursor: grabbing; }
+.toolbox-item .icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  align-items: center;
+  justify-content: center;
+  color: var(--vs-accent-hover);
+  font-size: 11px;
+}
+
+/* ============================================================
+   DESIGNER CANVAS (center) — where the form lives
+   ============================================================ */
+.designer-area {
+  background: var(--vs-designer-bg);
+  background-image: radial-gradient(circle, var(--vs-grid-dot) 1px, transparent 1px);
+  background-size: 8px 8px;
+  overflow: auto;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 30px;
+}
+
+.designer-tabs {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 28px;
+  background: var(--vs-bg-alt);
+  border-bottom: 1px solid var(--vs-border);
+  display: flex;
+  align-items: stretch;
+  z-index: 10;
+}
+.designer-tab {
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--vs-text-muted);
+  cursor: pointer;
+  border-right: 1px solid var(--vs-border);
+  background: var(--vs-bg-alt);
+}
+.designer-tab.active {
+  color: var(--vs-text);
+  background: var(--vs-designer-bg);
+  border-bottom: 2px solid var(--vs-accent-hover);
+  margin-bottom: -1px;
+}
+.designer-tab .close {
+  font-size: 14px;
+  opacity: 0.5;
+  padding: 0 4px;
+}
+.designer-tab .close:hover { opacity: 1; background: var(--vs-panel-alt); border-radius: 2px; }
+
+.designer-area.runtime {
+  background: #2a2a2a;
+  background-image: none;
+  align-items: center;
+}
+
+/* ============================================================
+   WINDOWS FORM — classic WinForms look (matches lab screenshots)
+   ============================================================ */
+.winform {
+  background: #f0f0f0;
+  color: #000;
+  position: relative;
+  font-family: "Segoe UI", Tahoma, Arial, Helvetica, sans-serif !important;
+  font-size: 12px;
+  margin-top: 40px;
+  border: 1px solid #a0a0a0;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.25);
+  overflow: hidden;
+  user-select: none;
+}
+.winform-titlebar {
+  height: 30px;
+  background: linear-gradient(to bottom, #e8ecf3 0%, #cddbea 100%);
+  border-bottom: 1px solid #9caac0;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font-size: 12px;
+  color: #000;
+}
+.winform-titlebar .icon {
+  width: 14px;
+  height: 14px;
+  background: #005a9e;
+  border-radius: 0;
+  margin-right: 8px;
+}
+.winform-titlebar .title {
+  flex: 1;
+}
+.winform-titlebar .controls {
+  display: flex;
+  gap: 0;
+  margin-right: -8px;
+  height: 30px;
+}
+.winform-titlebar .controls button {
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: "Segoe UI", Tahoma, Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  color: #000;
+}
+.winform-titlebar .controls button:hover { background: #e5e5e5; }
+.winform-titlebar .controls button.close:hover { background: #c42b1c; color: white; }
+
+.winform-body {
+  position: relative;
+  background: var(--win-bg);
+  overflow: hidden;
+}
+
+/* Component selection in designer */
+.designer .winform-body { cursor: default; }
+.designer .control {
+  outline: 1px dashed transparent;
+}
+.designer .control:hover {
+  outline: 1px dashed var(--vs-accent-hover);
+}
+.designer .control.selected {
+  outline: 2px solid var(--vs-selection);
+}
+.designer .control.selected::after {
+  /* 8 resize handles */
+  content: "";
+  position: absolute;
+  inset: -4px;
+  pointer-events: none;
+  background:
+    linear-gradient(white, white) -3px -3px / 7px 7px no-repeat,
+    linear-gradient(white, white) calc(50% - 3.5px) -3px / 7px 7px no-repeat,
+    linear-gradient(white, white) calc(100% + 3px - 7px) -3px / 7px 7px no-repeat,
+    linear-gradient(white, white) -3px calc(50% - 3.5px) / 7px 7px no-repeat,
+    linear-gradient(white, white) calc(100% + 3px - 7px) calc(50% - 3.5px) / 7px 7px no-repeat,
+    linear-gradient(white, white) -3px calc(100% + 3px - 7px) / 7px 7px no-repeat,
+    linear-gradient(white, white) calc(50% - 3.5px) calc(100% + 3px - 7px) / 7px 7px no-repeat,
+    linear-gradient(white, white) calc(100% + 3px - 7px) calc(100% + 3px - 7px) / 7px 7px no-repeat;
+  box-shadow:
+    -3px -3px 0 -2px var(--vs-selection),
+    0 0 0 0 transparent;
+}
+.designer .control .control-handle {
+  position: absolute;
+  width: 6px; height: 6px;
+  background: white;
+  border: 1px solid var(--vs-selection);
+  z-index: 100;
+}
+
+/* Selection chrome with real resize handles (interactive) */
+.selection-chrome {
+  position: absolute;
+  pointer-events: none;
+  z-index: 999;
+}
+.selection-chrome .resize-handle {
+  position: absolute;
+  width: 7px; height: 7px;
+  background: white;
+  border: 1px solid var(--vs-selection);
+  pointer-events: auto;
+  z-index: 1000;
+}
+.selection-chrome .resize-handle.nw { top: -4px; left: -4px; cursor: nw-resize; }
+.selection-chrome .resize-handle.n  { top: -4px; left: 50%; margin-left: -4px; cursor: n-resize; }
+.selection-chrome .resize-handle.ne { top: -4px; right: -4px; cursor: ne-resize; }
+.selection-chrome .resize-handle.w  { top: 50%; margin-top: -4px; left: -4px; cursor: w-resize; }
+.selection-chrome .resize-handle.e  { top: 50%; margin-top: -4px; right: -4px; cursor: e-resize; }
+.selection-chrome .resize-handle.sw { bottom: -4px; left: -4px; cursor: sw-resize; }
+.selection-chrome .resize-handle.s  { bottom: -4px; left: 50%; margin-left: -4px; cursor: s-resize; }
+.selection-chrome .resize-handle.se { bottom: -4px; right: -4px; cursor: se-resize; }
+
+/* Snaplines (margin + alignment guides) */
+.snapline {
+  position: absolute;
+  background: #e040fb;
+  z-index: 900;
+  pointer-events: none;
+}
+.snapline.dashed {
+  background: repeating-linear-gradient(to right, #e040fb 0, #e040fb 3px, transparent 3px, transparent 6px);
+}
+.snapline::after {
+  content: attr(data-label);
+  position: absolute;
+  background: #e040fb;
+  color: #fff;
+  font-size: 9px;
+  padding: 1px 3px;
+  border-radius: 2px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* In design mode clicks must pass through inner inputs/buttons to the wrapper .control */
+.designer .control > input,
+.designer .control > button,
+.designer .control > div > input,
+.designer .control > div > button {
+  pointer-events: none;
+}
+
+/* ============================================================
+   WINFORMS CONTROLS — pixel-perfect Win11 styling
+   ============================================================ */
+.control {
+  position: absolute;
+  font-family: "Segoe UI", Tahoma, Arial, Helvetica, sans-serif !important;
+}
+
+.control-label {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  color: #000;
+}
+
+.control-textbox,
+.control-maskedtextbox,
+textarea.control-textbox {
+  background: #fff;
+  border: 1px solid #a0a0a0;
+  border-top: 1px solid #707070;
+  border-left: 1px solid #707070;
+  border-bottom: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  border-radius: 0px;
+  padding: 2px 4px;
+  outline: none;
+  color: #000;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  font-size: inherit;
+  box-shadow: inset 2px 2px 3px rgba(0,0,0,0.1);
+}
+textarea.control-textbox {
+  resize: none;
+  overflow-y: scroll;
+}
+.control-textbox:focus,
+.control-maskedtextbox:focus,
+textarea.control-textbox:focus {
+  border-color: #3d7bad;
+  box-shadow: inset 0 0 2px rgba(61, 123, 173, 0.3);
+}
+.control-textbox:disabled,
+.control-maskedtextbox:disabled,
+textarea.control-textbox:disabled {
+  background: #fff;
+  color: #000;
+  border-color: #c0c0c0;
+}
+
+.control-numericupdown {
+  display: flex;
+  background: #fff;
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  border-radius: 0px;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+.control-numericupdown input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 1px 2px;
+  background: transparent;
+  color: #000;
+  width: 100%;
+  min-width: 0;
+  font-family: inherit;
+  font-size: inherit;
+}
+.control-numericupdown .spin {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid #a0a0a0;
+  width: 18px;
+  background: #e0e0e0;
+}
+.control-numericupdown .spin button {
+  flex: 1;
+  width: 18px;
+  border: 1px outset #d0d0d0;
+  background: #e0e0e0;
+  cursor: pointer;
+  font-size: 9px;
+  color: #333;
+  padding: 0;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.control-numericupdown .spin button:hover { background: #d0d0d0; }
+.control-numericupdown .spin button:active { border: 1px inset #c0c0c0; background: #c0c0c0; }
+.control-numericupdown:has(input:disabled) {
+  background: #f0f0f0;
+}
+.control-numericupdown input:disabled { color: #a0a0a0; }
+
+.control-button {
+  background: #e0e0e0;
+  border: 2px outset #c0c0c0;
+  border-radius: 0px;
+  padding: 2px 8px;
+  color: #000;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  font-family: inherit;
+}
+.control-button:hover {
+  background: #e8e8e8;
+}
+.control-button:active {
+  border: 2px inset #c0c0c0;
+  background: #d0d0d0;
+}
+.control-button:disabled {
+  background: #f0f0f0;
+  color: #a0a0a0;
+  border-color: #c0c0c0;
+}
+
+.control-combobox {
+  background: #fff;
+  border: 1px solid #7f9db9;
+  border-radius: 0px;
+  padding: 2px 4px;
+  outline: none;
+  color: #000;
+  cursor: pointer;
+}
+.control-combobox:disabled {
+  background: #f0f0f0;
+  color: #a0a0a0;
+}
+
+/* ListBox */
+.control-listbox {
+  background: var(--win-surface);
+  border: 1px solid var(--win-control-border);
+  border-bottom: 1px solid var(--win-control-border-bottom);
+  border-radius: 4px;
+  color: var(--win-text);
+  user-select: none;
+}
+.control-listbox .listbox-item {
+  padding: 2px 8px;
+  font-size: inherit;
+  cursor: default;
+  white-space: nowrap;
+}
+.control-listbox .listbox-item:hover {
+  background: #e8f0fe;
+}
+.control-listbox .listbox-item.selected {
+  background: var(--win-accent);
+  color: #fff;
+}
+.control-listbox:disabled,
+.control-listbox:disabled .listbox-item {
+  background: var(--win-disabled-bg);
+  color: var(--win-disabled-text);
+}
+
+/* GroupBox */
+.control-groupbox {
+  background: var(--win-surface);
+  border: 1px solid var(--win-control-border);
+  border-radius: 4px;
+  color: var(--win-text);
+}
+.control-groupbox .groupbox-label {
+  position: absolute;
+  top: -9px;
+  left: 8px;
+  background: var(--win-surface);
+  padding: 0 4px;
+  font-size: inherit;
+  color: var(--win-text);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Panel */
+.control-panel {
+  background: var(--win-surface);
+  color: var(--win-text);
+}
+.control-panel::-webkit-scrollbar { width: 8px; height: 8px; }
+.control-panel::-webkit-scrollbar-thumb { background: #c0c0c0; border-radius: 4px; }
+
+/* DateTimePicker */
+.control-datetimepicker {
+  background: var(--win-surface);
+  border: 1px solid var(--win-control-border);
+  border-bottom-color: var(--win-control-border-bottom);
+  border-radius: 4px;
+  padding: 2px 6px;
+  color: var(--win-text);
+  outline: none;
+}
+.control-datetimepicker:disabled {
+  background: var(--win-disabled-bg);
+  color: var(--win-disabled-text);
+}
+
+/* ProgressBar */
+.control-progressbar {
+  background: #e5e5e5;
+  border: 1px solid #c0c0c0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.control-progressbar > div {
+  height: 100%;
+  background: var(--win-accent);
+}
+
+/* PictureBox */
+.control-picturebox {
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* CheckedListBox */
+.control-checkedlistbox {
+  background: var(--win-surface);
+  border: 1px solid var(--win-control-border);
+  border-bottom-color: var(--win-control-border-bottom);
+  border-radius: 4px;
+  color: var(--win-text);
+  overflow: auto;
+}
+.control-checkedlistbox::-webkit-scrollbar { width: 8px; }
+.control-checkedlistbox::-webkit-scrollbar-thumb { background: #c0c0c0; border-radius: 4px; }
+.checkedlistbox-item:hover { background: #e8f0fe; }
+
+/* RichTextBox */
+.control-richtextbox {
+  background: var(--win-surface);
+  border: 1px solid var(--win-control-border);
+  border-bottom-color: var(--win-control-border-bottom);
+  color: var(--win-text);
+  padding: 4px;
+  outline: none;
+  resize: none;
+}
+.control-richtextbox:disabled {
+  background: var(--win-disabled-bg);
+  color: var(--win-disabled-text);
+}
+
+/* TreeView */
+.control-treeview {
+  background: var(--win-surface);
+  border: 1px solid var(--win-control-border);
+  border-bottom-color: var(--win-control-border-bottom);
+  border-radius: 4px;
+  color: var(--win-text);
+  overflow: auto;
+}
+.control-treeview::-webkit-scrollbar { width: 8px; }
+.control-treeview::-webkit-scrollbar-thumb { background: #c0c0c0; border-radius: 4px; }
+.treeview-node:hover { background: #e8f0fe; }
+.treeview-node.selected { background: var(--win-accent); color: #fff; }
+
+/* TabControl */
+.control-tabcontrol {
+  display: flex;
+  flex-direction: column;
+}
+.tabcontrol-headers {
+  display: flex;
+  background: #f0f0f0;
+  border-bottom: 1px solid #d0d0d0;
+  flex-shrink: 0;
+}
+.tabcontrol-tab {
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-bottom: none;
+  margin-bottom: -1px;
+  position: relative;
+  z-index: 1;
+}
+.tabcontrol-tab.active {
+  background: #fff;
+  border-color: #d0d0d0;
+  border-bottom-color: #fff;
+}
+.tabcontrol-body {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #d0d0d0;
+  border-top: none;
+}
+
+/* DataGridView */
+.control-datagridview {
+  background: var(--win-surface);
+  border: 1px solid var(--win-control-border);
+  border-radius: 4px;
+  color: var(--win-text);
+  overflow: auto;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.control-datagridview th {
+  background: #f5f5f5;
+  border: 1px solid var(--win-border);
+  padding: 4px 8px;
+  font-weight: 600;
+  text-align: left;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.control-datagridview td {
+  border: 1px solid var(--win-border);
+  padding: 3px 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.control-datagridview tr:hover td { background: #f0f8ff; }
+
+/* StatusStrip */
+.control-statusstrip {
+  background: #f0f0f0;
+  border-top: 1px solid #d0d0d0;
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  gap: 0;
+  width: 100%;
+  height: 100%;
+}
+.control-statusstrip .strip-label {
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #000;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  height: 18px;
+}
+.control-statusstrip .strip-label.sunken {
+  border: 2px solid;
+  border-color: #808080 #ffffff #ffffff #808080;
+  background: #e8e8e8;
+}
+
+/* MenuStrip */
+.control-menustrip {
+  background: #f0f0f0;
+  border-bottom: 1px solid #d0d0d0;
+  display: flex;
+  align-items: stretch;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+.control-menustrip .menu-top {
+  padding: 2px 8px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: #000;
+  position: relative;
+}
+.control-menustrip .menu-top:hover,
+.control-menustrip .menu-top.open {
+  background: #316ac5;
+  color: #fff;
+}
+.control-menustrip .submenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #f0f0f0;
+  border: 1px solid #a0a0a0;
+  border-radius: 0px;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  min-width: 180px;
+  padding: 2px 0;
+  z-index: 1000;
+  display: none;
+}
+.control-menustrip .menu-top.open .submenu { display: block; }
+/* In designer, show submenu on hover so items are editable */
+.designer .control-menustrip { overflow: visible !important; }
+.designer .control-menustrip .menu-top:hover .submenu { display: block; }
+.control-menustrip .submenu-item {
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #000;
+  white-space: nowrap;
+}
+.control-menustrip .submenu-item:hover { background: #316ac5; color: #fff; }
+.control-menustrip .submenu-sep {
+  height: 1px;
+  background: #c0c0c0;
+  margin: 2px 4px;
+}
+
+.align-toolbar {
+  background: var(--vs-panel);
+  border-bottom: 1px solid var(--vs-border);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  font-size: 12px;
+}
+.align-toolbar button {
+  background: var(--vs-panel-alt);
+  border: 1px solid var(--vs-border);
+  color: var(--vs-text);
+  padding: 3px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+}
+.align-toolbar button:hover {
+  background: var(--vs-accent);
+  border-color: var(--vs-accent);
+}
+.align-toolbar .sep {
+  width: 1px;
+  height: 16px;
+  background: var(--vs-border);
+  margin: 0 4px;
+}
+
+/* Tab Order toolbar */
+.taborder-toolbar {
+  background: var(--vs-accent);
+  border-bottom: 1px solid var(--vs-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  font-size: 12px;
+}
+.taborder-toolbar button {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  padding: 3px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+}
+.taborder-toolbar button:hover {
+  background: rgba(255,255,255,0.25);
+}
+
+/* Tab Order badge */
+.tabindex-badge {
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #0e639c;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+/* ============================================================
+   INSPECTOR (right panel) — Properties window
+   ============================================================ */
+.inspector {
+  background: var(--vs-panel);
+  border-left: 1px solid var(--vs-border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.inspector-header {
+  padding: 6px 12px;
+  background: var(--vs-bg-alt);
+  border-bottom: 1px solid var(--vs-border);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--vs-text-muted);
+}
+.inspector-target {
+  padding: 8px 12px;
+  background: var(--vs-panel-alt);
+  border-bottom: 1px solid var(--vs-border);
+  font-size: 12px;
+}
+.inspector-target .target-name {
+  font-weight: 600;
+  color: #fff;
+}
+.inspector-target .target-type {
+  color: var(--vs-text-muted);
+  font-size: 11px;
+}
+.inspector-props {
+  flex: 1;
+  overflow-y: auto;
+}
+.prop-group {
+  border-bottom: 1px solid var(--vs-border);
+}
+.prop-group-header {
+  padding: 4px 8px;
+  background: var(--vs-bg-alt);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--vs-text-muted);
+  cursor: pointer;
+}
+.prop-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  border-bottom: 1px solid var(--vs-border);
+  align-items: stretch;
+  min-height: 24px;
+}
+.prop-row:hover { background: rgba(255, 255, 255, 0.03); }
+.prop-row .key {
+  padding: 4px 8px;
+  font-size: 11px;
+  color: var(--vs-text);
+  border-right: 1px solid var(--vs-border);
+  display: flex;
+  align-items: center;
+}
+.prop-row .val {
+  display: flex;
+  align-items: stretch;
+}
+.prop-row .val input,
+.prop-row .val select {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--vs-text);
+  padding: 4px 8px;
+  font-size: 11px;
+  outline: none;
+  min-width: 0;
+  width: 100%;
+}
+.prop-row .val input:focus,
+.prop-row .val select:focus { background: var(--vs-panel-alt); }
+.prop-row .val select option { background: var(--vs-panel); }
+.prop-row.bool .val { padding: 0 8px; align-items: center; }
+.prop-row.bool .val select { padding-left: 0; }
+.empty-inspector {
+  padding: 20px;
+  color: var(--vs-text-muted);
+  font-size: 12px;
+  text-align: center;
+}
+
+/* Form tree (top of inspector or separate) */
+.tree-panel {
+  border-bottom: 1px solid var(--vs-border);
+  max-height: 220px;
+  overflow-y: auto;
+}
+.tree-node {
+  padding: 3px 8px 3px 20px;
+  font-size: 12px;
+  cursor: pointer;
+  position: relative;
+  white-space: nowrap;
+}
+.tree-node::before {
+  content: "•";
+  position: absolute;
+  left: 8px;
+  color: var(--vs-text-muted);
+}
+.tree-node.form::before { content: "▣"; color: var(--win-accent-hover); }
+.tree-node:hover { background: var(--vs-panel-alt); }
+.tree-node.selected {
+  background: var(--vs-accent);
+  color: white;
+}
+
+/* ============================================================
+   STATUS BAR (bottom)
+   ============================================================ */
+.statusbar {
+  background: var(--vs-accent);
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  font-size: 11px;
+  gap: 16px;
+}
+.statusbar .spacer { flex: 1; }
+.statusbar .mode-tag {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 1px 8px;
+  border-radius: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 10px;
+}
+
+/* ============================================================
+   DIALOG (modal overlay for AddForm)
+   ============================================================ */
+.dialog-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+}
+.dialog-overlay .winform {
+  margin: 0;
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--vs-panel);
+  border: 1px solid var(--vs-border);
+  border-left: 4px solid var(--vs-accent-hover);
+  padding: 10px 16px;
+  font-size: 12px;
+  color: var(--vs-text);
+  border-radius: 4px;
+  z-index: 2000;
+  max-width: 340px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  animation: toastIn 0.2s ease-out;
+}
+.toast.error { border-left-color: #f48771; }
+.toast.success { border-left-color: #4ec9b0; }
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* MessageBox (in runtime) */
+.msgbox-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 600;
+}
+.msgbox {
+  background: var(--win-bg);
+  border-radius: 8px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  min-width: 340px;
+  max-width: 480px;
+  overflow: hidden;
+  font-family: "Segoe UI", Tahoma, Arial, Helvetica, sans-serif;
+}
+.msgbox-title {
+  padding: 10px 16px;
+  font-size: 12px;
+  border-bottom: 1px solid #e5e5e5;
+  background: #fafafa;
+  color: #1b1b1b;
+}
+.msgbox-body {
+  padding: 20px 16px;
+  font-size: 13px;
+  color: #1b1b1b;
+}
+.msgbox-buttons {
+  padding: 10px 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  background: #fafafa;
+  border-top: 1px solid #e5e5e5;
+}
+.msgbox-buttons button {
+  min-width: 80px;
+  padding: 5px 14px;
+  background: var(--win-surface);
+  border: 1px solid var(--win-control-border);
+  border-bottom: 1px solid var(--win-control-border-bottom);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--win-text);
+  font-size: 12px;
+}
+.msgbox-buttons button:hover { background: #f5f5f5; }
+.msgbox-buttons button.primary {
+  background: var(--win-accent);
+  color: white;
+  border-color: var(--win-accent-pressed);
+}
+.msgbox-buttons button.primary:hover { background: var(--win-accent-hover); }
+
+/* Drag preview */
+.drag-preview {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.7;
+  background: var(--vs-accent);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* Scrollbar styling — VS-like */
+*::-webkit-scrollbar { width: 12px; height: 12px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: #555; border: 3px solid transparent; background-clip: content-box; border-radius: 6px; }
+*::-webkit-scrollbar-thumb:hover { background: #777; border: 3px solid transparent; background-clip: content-box; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Title bar -->
+  <div class="titlebar">
+    <div class="traffic">
+      <span class="red"></span>
+      <span class="yellow"></span>
+      <span class="green"></span>
+    </div>
+    <div class="title"><b>PhoneBook</b> — Microsoft Visual Studio (Web Simulator)</div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="menu-item" id="menu-file">File</div>
+    <div class="menu-item" id="menu-edit">Edit</div>
+    <div class="menu-item" id="menu-view">View</div>
+    <div class="menu-item" id="menu-help">Help</div>
+    <div class="sep"></div>
+    <div class="mode-switch">
+      <button id="btn-design" class="active">🎨 Design</button>
+      <button id="btn-runtime">▶ Runtime</button>
+    </div>
+    <div class="sep"></div>
+    <button class="run-btn" id="btn-run">Start (F5)</button>
+    <button class="export-btn" id="btn-export">Export C#</button>
+    <button class="export-btn" id="btn-save-project" style="background: #555;">Save .winforms</button>
+    <button class="export-btn" id="btn-load-project" style="background: #555;">Load .winforms</button>
+    <button class="export-btn" id="btn-tab-order" style="background: #0e639c;">Tab Order</button>
+    <div class="sep"></div>
+    <button class="export-btn" id="btn-new-form" style="background: #0e639c;">+ Form</button>
+    <button class="export-btn" id="btn-new-class" style="background: #0e639c;">+ Class</button>
+  </div>
+
+  <!-- Tab Order toolbar -->
+  <div class="taborder-toolbar" id="taborder-toolbar" style="display:none;">
+    <span style="color:#fff;font-size:12px;margin-right:8px;">Tab Order Mode — click controls to set sequence</span>
+    <button id="taborder-reset">Reset</button>
+    <button id="taborder-done">Done</button>
+  </div>
+
+  <!-- Align toolbar (shown when multiple controls selected) -->
+  <div class="align-toolbar" id="align-toolbar" style="display:none;">
+    <button id="align-left">Align Lefts</button>
+    <button id="align-right">Align Rights</button>
+    <button id="align-top">Align Tops</button>
+    <button id="align-bottom">Align Bottoms</button>
+    <div class="sep"></div>
+    <button id="same-width">Make Same Width</button>
+    <button id="same-height">Make Same Height</button>
+    <button id="same-size">Make Same Size</button>
+    <div class="sep"></div>
+    <button id="bring-front">Bring to Front</button>
+    <button id="send-back">Send to Back</button>
+  </div>
+
+  <!-- Main area -->
+  <div class="main">
+    <!-- Toolbox -->
+    <aside class="toolbox">
+      <div class="panel-header">Toolbox</div>
+      <div id="toolbox-content"></div>
+    </aside>
+
+    <!-- Designer canvas -->
+    <main class="designer-area designer" id="designer">
+      <div class="designer-tabs" id="designer-tabs"></div>
+      <div id="form-host"></div>
+    </main>
+
+    <!-- Inspector -->
+    <aside class="inspector">
+      <div class="panel-header">Solution Explorer</div>
+      <div class="tree-panel" id="tree-panel"></div>
+      <div class="inspector-header">Properties</div>
+      <div class="inspector-target" id="inspector-target">
+        <div class="target-name">(nothing selected)</div>
+        <div class="target-type"></div>
+      </div>
+      <div class="inspector-props" id="inspector-props">
+        <div class="empty-inspector">Select a control to view properties</div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Status bar -->
+  <div class="statusbar">
+    <span id="status-text">Ready</span>
+    <div class="spacer"></div>
+    <span class="mode-tag" id="mode-tag">Design</span>
+    <span id="status-position">Ln 1, Col 1</span>
+  </div>
+</div>
+
+<!-- Hidden file input for loading projects -->
+<input type="file" id="file-input-hidden" style="display:none" accept=".json,.winforms.json,.txt,.xml">
+
+<script type="module" src="modules/boot.js"></script>
+</body>
+</html>
+<style>
+/* Classic WinForms Fixed3D sunken border - high contrast */
+.control-textbox,
+.control-maskedtextbox,
+textarea.control-textbox {
+  border: 3px solid !important;
+  border-color: #606060 #ffffff #ffffff #606060 !important;
+  background: #fff !important;
+  color: #000 !important;
+}
+/* Placeholder black like mask literals */
+.control-textbox::placeholder,
+.control-maskedtextbox::placeholder {
+  color: #000 !important;
+  opacity: 1 !important;
+}
+/* Disabled inputs keep white bg + black text */
+.control-textbox:disabled,
+.control-maskedtextbox:disabled,
+textarea.control-textbox:disabled {
+  background: #fff !important;
+  color: #000 !important;
+  border: 1px solid #b0b0b0 !important;
+  box-shadow: inset 1px 1px 2px rgba(0,0,0,0.08), inset -1px -1px 1px rgba(255,255,255,0.4) !important;
+}
+/* Focus: subtle blue */
+.control-textbox:focus,
+.control-maskedtextbox:focus,
+textarea.control-textbox:focus {
+  outline: none !important;
+  border: 1px solid #7f9db9 !important;
+}
+/* Force scrollbar visible on macOS Chrome */
+textarea.control-textbox {
+  overflow-y: scroll !important;
+}
+textarea.control-textbox::-webkit-scrollbar {
+  width: 16px;
+  background: #e0e0e0;
+  border-left: 1px solid #a0a0a0;
+}
+textarea.control-textbox::-webkit-scrollbar-track {
+  background: #e0e0e0;
+  border-left: 1px solid #a0a0a0;
+}
+textarea.control-textbox::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border: 1px outset #d0d0d0;
+  border-radius: 0;
+}
+textarea.control-textbox::-webkit-scrollbar-button:single-button {
+  background: #e0e0e0;
+  border: 1px outset #d0d0d0;
+  height: 16px;
+}
+/* NumericUpDown input black text */
+.control-numericupdown input {
+  color: #000 !important;
+  background: #fff !important;
+  border: 1px solid #a0a0a0 !important;
+}
+</style>

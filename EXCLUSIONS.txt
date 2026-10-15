@@ -1,0 +1,30 @@
+.DS_Store
+.ports.json
+PhoneBook-exported/.DS_Store
+PhoneBook-exported/.winforms.json
+PhoneBook-exported/.winforms.json.bak
+PhoneBook-exported/server.log
+PhoneBook/.DS_Store
+PhoneBook/.winforms.json.bak
+PhoneBook/MainForm.cs.bak
+PhoneBook/server.log
+PhoneBookPart3/.DS_Store
+diagrams/diagram-part1.puml
+diagrams/diagram-part2-factory.puml
+diagrams/diagram-part2-strategy.puml
+diagrams/diagram-part3.puml
+labs_md/Телефонный справочник (1)_00.png
+labs_md/Телефонный справочник (1)_01.png
+labs_md/Телефонный справочник (1)_02.png
+labs_md/Телефонный справочник (1)_03.png
+labs_md/Телефонный справочник (1)_04.png
+labs_md/Телефонный справочник (1)_05.png
+labs_md/Телефонный справочник (1)_06.png
+labs_md/Телефонный справочник (1)_07.png
+labs_md/Телефонный справочник (1)_08.png
+server.log
+winforms.html.backup
+лабы_про_телефонный_справочник/Телефонный справочник (1).doc
+лабы_про_телефонный_справочник/Телефонный справочник. Часть 2 (1).docx
+лабы_про_телефонный_справочник/Телефонный справочник. Часть 3.docx
+рекомендации
